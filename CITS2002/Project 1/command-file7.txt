@@ -1,0 +1,15 @@
+#
+mixed1
+	100usecs   sleep   200000usecs
+	200usecs   read    hd       4000B
+	300usecs   write   terminal 1000B
+	400usecs   sleep   300000usecs
+	500usecs   exit
+#
+mixed2
+	100usecs   spawn   mixed1
+	200usecs   spawn   cpu_intensive1
+	300usecs   wait
+	wait
+	exit
+#

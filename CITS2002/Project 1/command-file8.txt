@@ -1,0 +1,35 @@
+#
+test1
+	10usecs    sleep   500000usecs
+	20usecs    sleep   300000usecs
+	30usecs    sleep   200000usecs
+	40usecs    sleep   100000usecs
+	50usecs    exit
+#
+test2
+	100usecs   write   terminal 5B
+	200usecs   write   hd       10000B
+	300usecs   exit
+#
+test3
+	50usecs    read    hd       2000B
+	100usecs   read    ssd      5000B
+	200usecs   write   hd       3000B
+	300usecs   write   ssd      7000B
+	400usecs   exit
+#
+test4
+	100usecs   write   terminal 20B
+	200usecs   spawn   test2
+	300usecs   spawn   test3
+	400usecs   wait
+	500usecs   exit
+#
+test5
+	50usecs    write   hd       5000B
+	100usecs   write   terminal 10B
+	200usecs   spawn   test1
+	300usecs   spawn   test4
+	400usecs   wait
+	500usecs   exit
+#

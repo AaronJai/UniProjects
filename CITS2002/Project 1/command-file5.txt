@@ -1,0 +1,13 @@
+#
+cpu_intensive1
+	10usecs    sleep   500000usecs
+	50usecs    exit
+#
+cpu_intensive2
+	10usecs    sleep   800000usecs
+	50usecs    exit
+#
+cpu_intensive3
+	10usecs    sleep   1200000usecs
+	50usecs    exit
+#

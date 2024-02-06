@@ -1,0 +1,13 @@
+#
+first
+	1usecs spawn proc0
+	2usecs spawn proc1
+	3usecs wait
+	4usecs exit
+#
+proc0
+	20	exit
+#
+proc1
+	30	exit
+#

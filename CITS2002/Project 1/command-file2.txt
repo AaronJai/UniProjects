@@ -1,0 +1,15 @@
+#
+simple
+	100usecs   write   terminal 10B
+	200usecs   read    terminal 5B
+	exit
+#
+multiple
+	100usecs   spawn   simple
+	200usecs   spawn   simple
+	300usecs   spawn   simple
+	wait
+	wait
+	wait
+	exit
+#

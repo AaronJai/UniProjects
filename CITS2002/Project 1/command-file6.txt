@@ -1,0 +1,17 @@
+#
+concurrent1
+	100usecs   spawn   cpu_intensive1
+	200usecs   spawn   cpu_intensive2
+	wait
+	wait
+ 	exit
+#
+concurrent2
+	100usecs   spawn   cpu_intensive1
+	200usecs   spawn   cpu_intensive2
+	300usecs   spawn   cpu_intensive3
+	wait
+	wait
+	wait
+	exit
+#

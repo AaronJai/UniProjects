@@ -1,0 +1,7 @@
+#
+io
+	100usecs   read    hd       2000B
+	200usecs   write   terminal 500B
+	wait
+	exit
+#

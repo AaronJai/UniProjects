@@ -1,0 +1,10 @@
+#
+complex
+	100usecs   spawn   io
+	200usecs   read    hd       4000B
+	300usecs   write   terminal 1000B
+	400usecs   spawn   simple
+	500usecs   wait
+	wait
+	exit
+#
