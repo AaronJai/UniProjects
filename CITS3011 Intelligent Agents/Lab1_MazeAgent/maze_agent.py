@@ -3,48 +3,74 @@ Attempting to solve the issue with 'left hand on the wall' strategy
 Using DFS
 """
 
-# ACTIONS = {
-#     'D': (0, -1),
-#     'U': (0, 1),
-#     'L': (-1, 0),
-#     'R': (1, 0)
-# }
+# The actions available to us and their effect on the state
+ACTIONS = {
+    'D': (0, -1),
+    'U': (0, 1),
+    'L': (-1, 0),
+    'R': (1, 0),
+}
 
-# REVERSE = {
-#     'D': 'U',
-#     'U': 'D',
-#     'L': 'R',
-#     'R': 'L'
-# }
+# How to undo an action
+REVERSE = {
+    'D': 'U',
+    'U': 'D',
+    'L': 'R',
+    'R': 'L',
+}
 
-# class MazeAgent():
-#     def reset(self):
-#         self.stack = []
-#         self.pos = None
-#         self.blocked = set()
-#         self.next_pos = None
+class MazeAgent():
+    def reset(self):
+        # The sequence of actions we have (successfully) taken
+        self.stack = []
+        # Our last known position
+        self.pos = None
+        # What we know to be at various locations in the world
+        # Could just be a set, but values let us print a pretty map
+        self.known = {}
+        # Where we expect to be if our attempted action succeeded
+        self.next_pos = None
 
-#     def get_next_move(self, x, y):
-#         prev_pos = self.pos
-#         self.pos = (x, y)
-#         if self.pos == prev_pos:
-#             self.blocked.add(self.next_pos)
-        
-#         self.blocked.add(self.pos)
-#         choice = None
-        
-#         for d, (dx, dy) in ACTIONS.items(): # for each direction, (dx, dy) = change in direction
-#             nx, ny = x + dx, y + dy         # new x, new y
-#             if (nx, ny) not in self.blocked: # if new position not visited
-#                 choice = d
-#                 self.stack.append(choice)
-#                 self.next_pos = (nx, ny)
-#                 break
-        
-#         if choice is None:
-#             choice = REVERSE[self.stack.pop()] # backtrack
-        
-#         return choice
+    def get_next_move(self, x, y):
+        # Update pos
+        prev_pos = self.pos
+        self.pos = (x, y)
+
+        # If our action failed
+        if self.pos == prev_pos:
+            # We know there's a wall (or edge of map) there
+            self.known[self.next_pos] = '#'
+            # Remove the unsuccessful action from our path
+            self.stack.pop()  # THIS WAS MISSING IN TUTORIAL
+
+        # We always know that wherever we are standing is clear
+        self.known[self.pos] = '.'
+
+        # Pretty print grid
+        self.__print_grid()
+
+        # Consider possible actions and take any we don't know the outcome of
+        for d, (dx, dy) in ACTIONS.items():
+            nx, ny = x + dx, y + dy
+            if (nx, ny) not in self.known:
+                self.next_pos = (nx, ny)
+                self.stack.append(d)
+                return d
+
+        # If all action outcomes are known states, backtrack
+        return REVERSE[self.stack.pop()]
+
+    def __print_grid(self):
+        for r in range(10):
+            for c in range(10):
+                k = (c, 9 - r)
+                tile = ' '
+                if k == self.pos:
+                    tile = 'X'
+                elif k in self.known:
+                    tile = self.known[k]
+                print(tile, end='')
+            print()
             
         
 
@@ -62,23 +88,23 @@ while it passes the test cases, it will fail in situations such as an open space
 essentially go in a circle
 """
 
-ACTIONS = ['D', 'R', 'U', 'L']
+# ACTIONS = ['D', 'R', 'U', 'L']
 
-class MazeAgent():
-    def reset(self):
-        self.dir = 0
-        self.pos = None
+# class MazeAgent():
+#     def reset(self):
+#         self.dir = 0
+#         self.pos = None
 
-    def get_next_move(self, x, y):
-        prev_pos = self.pos
-        self.pos = (x, y)
-        if self.pos != prev_pos: # means we moved
-            # len(ACTIONS) keep self.dir within the range of 0-3 (in ACTIONS)
-            self.dir = (self.dir + 1) % len(ACTIONS) # move to next direction
-        else:
-            self.dir = (self.dir - 1) % len(ACTIONS)
+#     def get_next_move(self, x, y):
+#         prev_pos = self.pos
+#         self.pos = (x, y)
+#         if self.pos != prev_pos: # means we moved
+#             # len(ACTIONS) keep self.dir within the range of 0-3 (in ACTIONS)
+#             self.dir = (self.dir + 1) % len(ACTIONS) # move to next direction
+#         else:
+#             self.dir = (self.dir - 1) % len(ACTIONS)
         
-        return ACTIONS[self.dir]
+#         return ACTIONS[self.dir]
         
 
 
