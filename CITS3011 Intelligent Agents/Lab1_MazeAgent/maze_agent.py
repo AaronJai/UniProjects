@@ -1,5 +1,88 @@
+"""
+Attempting to solve the issue with 'left hand on the wall' strategy
+Using DFS
+"""
 
-#################################################DFS v2 ##################################################
+# ACTIONS = {
+#     'D': (0, -1),
+#     'U': (0, 1),
+#     'L': (-1, 0),
+#     'R': (1, 0)
+# }
+
+# REVERSE = {
+#     'D': 'U',
+#     'U': 'D',
+#     'L': 'R',
+#     'R': 'L'
+# }
+
+# class MazeAgent():
+#     def reset(self):
+#         self.stack = []
+#         self.pos = None
+#         self.blocked = set()
+#         self.next_pos = None
+
+#     def get_next_move(self, x, y):
+#         prev_pos = self.pos
+#         self.pos = (x, y)
+#         if self.pos == prev_pos:
+#             self.blocked.add(self.next_pos)
+        
+#         self.blocked.add(self.pos)
+#         choice = None
+        
+#         for d, (dx, dy) in ACTIONS.items(): # for each direction, (dx, dy) = change in direction
+#             nx, ny = x + dx, y + dy         # new x, new y
+#             if (nx, ny) not in self.blocked: # if new position not visited
+#                 choice = d
+#                 self.stack.append(choice)
+#                 self.next_pos = (nx, ny)
+#                 break
+        
+#         if choice is None:
+#             choice = REVERSE[self.stack.pop()] # backtrack
+        
+#         return choice
+            
+        
+
+###############################################  LAB SOL1  ###############################################
+##########################################################################################################
+##########################################################################################################
+
+"""
+- 'left hand on the wall' strategy' - always turn left
+agent always attempts to change direction on each iteration,
+moves to next direction if it moved from the previous position,
+otherwise, it moves to the previous direction.
+
+while it passes the test cases, it will fail in situations such as an open space where it will
+essentially go in a circle
+"""
+
+ACTIONS = ['D', 'R', 'U', 'L']
+
+class MazeAgent():
+    def reset(self):
+        self.dir = 0
+        self.pos = None
+
+    def get_next_move(self, x, y):
+        prev_pos = self.pos
+        self.pos = (x, y)
+        if self.pos != prev_pos: # means we moved
+            # len(ACTIONS) keep self.dir within the range of 0-3 (in ACTIONS)
+            self.dir = (self.dir + 1) % len(ACTIONS) # move to next direction
+        else:
+            self.dir = (self.dir - 1) % len(ACTIONS)
+        
+        return ACTIONS[self.dir]
+        
+
+
+###############################################  DFS v2  #################################################
 ##########################################################################################################
 ##########################################################################################################
 
@@ -12,68 +95,68 @@ also initialised the stack with the start position instead of an empty list
  
 """
 
-import random
+# import random
 
-class MazeAgent:
-    def __init__(self):
-        self.reset()
+# class MazeAgent:
+#     def __init__(self):
+#         self.reset()
         
-    def reset(self):
-        self.previous_location = None
-        self.last_direction = None
-        self.visited = set() 
-        self.stack = []  # Initialize stack with the start position instead of empty list
+#     def reset(self):
+#         self.previous_location = None
+#         self.last_direction = None
+#         self.visited = set() 
+#         self.stack = []  # Initialize stack with the start position instead of empty list
     
-    def get_next_move(self, x, y):
-        if not self.stack:
-            # First call: Initialize the stack with the current position
-            self.stack.append((x, y))
-            self.visited.add((x, y))
-            return None  # No more moves available
+#     def get_next_move(self, x, y):
+#         if not self.stack:
+#             # First call: Initialize the stack with the current position
+#             self.stack.append((x, y))
+#             self.visited.add((x, y))
+#             return None  # No more moves available
 
-        # Move options with corresponding coordinate changes
-        moves = {'L': (x - 1, y), 'R': (x + 1, y), 'U': (x, y + 1), 'D': (x, y - 1)}
+#         # Move options with corresponding coordinate changes
+#         moves = {'L': (x - 1, y), 'R': (x + 1, y), 'U': (x, y + 1), 'D': (x, y - 1)}
         
-        # Check valid moves
-        valid_moves = []
-        for direction, (nx, ny) in moves.items():
-            if 0 <= nx < 10 and 0 <= ny < 10 and (nx, ny) not in self.visited:
-                valid_moves.append(direction)
+#         # Check valid moves
+#         valid_moves = []
+#         for direction, (nx, ny) in moves.items():
+#             if 0 <= nx < 10 and 0 <= ny < 10 and (nx, ny) not in self.visited:
+#                 valid_moves.append(direction)
         
-        if valid_moves:
-            # Choose a move from valid options
-            direction = random.choice(valid_moves)
-            nx, ny = moves[direction]
+#         if valid_moves:
+#             # Choose a move from valid options
+#             direction = random.choice(valid_moves)
+#             nx, ny = moves[direction]
             
-            # Update state
-            self.last_direction = direction
-            self.previous_location = (x, y)
-            self.visited.add((nx, ny))  # Mark the new cell as visited
-            self.stack.append((nx, ny))  # Push the new position onto the stack
+#             # Update state
+#             self.last_direction = direction
+#             self.previous_location = (x, y)
+#             self.visited.add((nx, ny))  # Mark the new cell as visited
+#             self.stack.append((nx, ny))  # Push the new position onto the stack
             
-            return direction
-        else:
-            # BACKTRACKING
-            self.stack.pop()  # Remove the current position from the stack
+#             return direction
+#         else:
+#             # BACKTRACKING
+#             self.stack.pop()  # Remove the current position from the stack
             
-            if self.stack:
-                # Move to the previous position in the stack
-                prev_x, prev_y = self.stack[-1]
-                if prev_x < x:
-                    direction = 'L'
-                elif prev_x > x:
-                    direction = 'R'
-                elif prev_y < y:
-                    direction = 'D'
-                else:
-                    direction = 'U'
+#             if self.stack:
+#                 # Move to the previous position in the stack
+#                 prev_x, prev_y = self.stack[-1]
+#                 if prev_x < x:
+#                     direction = 'L'
+#                 elif prev_x > x:
+#                     direction = 'R'
+#                 elif prev_y < y:
+#                     direction = 'D'
+#                 else:
+#                     direction = 'U'
                 
-                self.previous_location = (x, y)
-                self.last_direction = direction
+#                 self.previous_location = (x, y)
+#                 self.last_direction = direction
                 
-                return direction
-            else:
-                return None  # No more moves available
+#                 return direction
+#             else:
+#                 return None  # No more moves available
 
 #####################################################DFS##################################################
 ##########################################################################################################
