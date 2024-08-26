@@ -1,36 +1,42 @@
 def mountainwaterfall(grid):
-    parsed_grid = store_grid(grid)
-    
-    if not parsed_grid['x']:
-        return grid
+    R = len(grid)
+    C = len(grid[0])
+    visited = set()
 
-    
-    return parsed_grid
+    def dfs(r, c):
+        if (r, c) in visited:
+            return
+        visited.add((r, c))
 
+        # Flow down if possible
+        if r + 1 < R and grid[r + 1][c] == '.':
+            grid[r + 1][c] = '*'  # Correctly update the cell in the grid
+            dfs(r + 1, c)
+        
+        # Flow left and right if blocked below
+        if r + 1 < R and grid[r + 1][c] == 'o':
+            # Flow left
+            if c - 1 >= 0 and grid[r][c - 1] == '.':
+                grid[r][c - 1] = '*'  # Correctly update the cell in the grid
+                dfs(r, c - 1)
+            # Flow right
+            if c + 1 < C and grid[r][c + 1] == '.':
+                grid[r][c + 1] = '*'  # Correctly update the cell in the grid
+                dfs(r, c + 1)
 
-# from parsed input, store the grid characters in a 2D array
-def store_grid(grid):
-    positions = {'o': [],
-                 'x': [],
-                 '.': []}
-    
-    for r in range(len(grid)):
-        for c in range(len(grid[r])):
-            if grid[r][c] in positions:
-                positions[grid[r][c]].append((r, c))
-    
-    return positions
+    # Start DFS from each water cell
+    for r in range(R):
+        for c in range(C):
+            if grid[r][c] == '*':
+                dfs(r, c)
 
+    # Print the final grid
+    for row in grid:
+        print(''.join(row))
 
+# Reading input
+R, C = map(int, input().split())
+grid = [list(input()) for _ in range(R)]
 
-# Read input
-x = input().split()
-row, col = int(x[0]), int(x[1])
-
-# Initialize grid by reading subsequent lines of input
-grid = []
-for _ in range(row):
-    grid.append(input().strip())
-
-# Store grid coordinates
-coordinates = store_grid(grid)
+# Run the mountainwaterfall function
+mountainwaterfall(grid)
