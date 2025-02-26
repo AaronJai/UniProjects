@@ -4,10 +4,10 @@ import random
 # Important: Make sure you put your agents in the agents folder, so that the
 # game runner code can find them.
 
-class BasicAgent(Agent):        
-    '''A basic agent capable of beating RandomAgent and not much more'''
+class SatisfactoryAgent(Agent):        
+    '''A simple agent capable of beating RandomAgent and BasicAgent and not much else'''
 
-    def __init__(self, name='Basic'):
+    def __init__(self, name='Satisfactory'):
         '''
         Initialises the agent.
         '''
@@ -22,6 +22,9 @@ class BasicAgent(Agent):
         self.num_players = number_of_players
         self.player_number = player_number
         self.spies = set(spy_list)
+
+        self.num_spies = super().spy_count[self.num_players]
+
         self.successful_missions = 0
         self.failed_missions = 0
 
@@ -33,13 +36,12 @@ class BasicAgent(Agent):
             return self.player_number in self.spies
         return player_num in self.spies
 
-    def propose_mission(self, team_size, betrayals_required):
+    def propose_mission(self, team_size, betrayals_required=1):
         '''
         expects a team_size list of distinct agents with id between 0 (inclusive) and number_of_players (exclusive)
         to be returned. 
         betrayals_required are the number of betrayals required for the mission to fail.
         '''
-
         if self.is_spy():
             team = [self.player_number]
             if betrayals_required == 2:
@@ -61,6 +63,10 @@ class BasicAgent(Agent):
             if not self.is_spy(player):
                 team_options.append(player)
 
+        # check, just in case there's a weird error going on
+        if len(team_options) < team_size:
+            team_options = list(range(self.num_players))
+
         # remove yourself from the list of options, so that you don't
         # accidentally put yourself on the team twice
         team_options.remove(self.player_number)
@@ -71,7 +77,7 @@ class BasicAgent(Agent):
         random.shuffle(team)
         return team
 
-    def vote(self, mission, proposer, betrayals_required):
+    def vote(self, mission, proposer, betrayals_required=1):
         '''
         mission is a list of agents to be sent on a mission. 
         The agents on the mission are distinct and indexed between 0 and number_of_players.
@@ -97,12 +103,19 @@ class BasicAgent(Agent):
         if spy_count > 0 or self.is_spy(proposer):
             return False
             
+        # you know you are not a spy, so a mission you are on
+        # is more likely to succeed
         if self.player_number in mission:
-            # you know you are not a spy, so a mission you are on
-            # is more likely to succeed
             return random.random() < 0.9
-        else:
-            return random.random() < 0.33
+
+        # if there's definitely a spy on the mission, reject mission
+        players_not_on_mission = self.num_players - len(mission)
+        if (players_not_on_mission - 1) < self.num_spies:
+            return False
+        
+        # you're not on the mission, but it's still possible for the mission team
+        # to be good. so maybe vote
+        return random.random() < 0.33
 
     def vote_outcome(self, mission, proposer, votes):
         '''
@@ -115,7 +128,7 @@ class BasicAgent(Agent):
         # nothing to do here
         pass
 
-    def betray(self, mission, proposer, betrayals_required):
+    def betray(self, mission, proposer, betrayals_required=1):
         '''
         mission is a list of agents to be sent on a mission. 
         The agents on the mission are distinct and indexed between 0 and number_of_players, and include this agent.
@@ -143,8 +156,25 @@ class BasicAgent(Agent):
         if self.failed_missions == 2:
             return True
         
-        # maybe betray
-        return random.random() < 0.3
+        # decide if we want this mission to fail
+        want_to_fail = False
+        if spy_count > 1:
+            want_to_fail = True
+        elif self.successful_missions > self.failed_missions:
+            want_to_fail = True
+        elif random.random() < 0.5:
+            want_to_fail = True
+
+        # we want to hide that we are a spy, so don't betray the mission
+        if not want_to_fail:
+            return False
+
+        # betray the mission
+        if spy_count == betrayals_required:
+            return True
+        
+        # there are more spies than betrayals_required, so randomise
+        return random.random() < 0.5
 
     def mission_outcome(self, mission, proposer, num_betrayals, mission_success):
         '''
