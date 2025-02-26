@@ -1,6 +1,7 @@
 from agent import Agent
 import random
-   
+import math
+
 class StudentAgent(Agent):
     '''Our implementation'''
 
@@ -9,14 +10,12 @@ class StudentAgent(Agent):
         Initialises the agent.
         And other variables
         '''
-        self.name = name    
-        
+        self.name = name
         self.player_probabilities = {}      # Player index to spy probability
         self.mission_history = []           # Store mission outcomes
-        self.vote_history = {}              # Store vote patterns 
+        self.vote_history = {}              # Store vote patterns
         self.spy_behavior = {}              # Tracks spy behavior for heuristics
         self.total_rounds = 5
-
 
     def new_game(self, number_of_players, player_number, spy_list):
         '''
@@ -24,7 +23,7 @@ class StudentAgent(Agent):
         number_of_players, the player_number (an id number for the agent in the game),
         and a list of agent indexes which are the spies, if the agent is a spy, or empty otherwise.
         And sets up the variables for mission history, vote history, spy behavior, and player probabilities for our implementation.
-        ''' 
+        '''
         self.num_players = number_of_players
         self.player_number = player_number
         self.spies = set(spy_list)          # Converting to a set for lookup efficiency
@@ -35,7 +34,7 @@ class StudentAgent(Agent):
         for player in range(number_of_players):
             self.vote_history[player] = []
         
-        # Initialize spy behavior tracking for all players 
+        # Initialize spy behavior tracking for all players
         self.spy_behavior = {}
         for player in range(number_of_players):
             self.spy_behavior[player] = {'missions': 0, 'betrays': 0}
@@ -46,25 +45,23 @@ class StudentAgent(Agent):
         for player in range(number_of_players):
             self.player_probabilities[player] = 0.33
 
-        self.player_probabilities[self.player_number] = 0.0  # Self is never a spy 
+        self.player_probabilities[self.player_number] = 0.0  # Self is never a spy
 
         self.successful_missions = 0
         self.failed_missions = 0
-    
     
     def is_spy(self, player_num=None):
         '''
         returns True iff the given agent is a spy
         '''
-        if player_num is not None: 
+        if player_num is not None:
             # If a player number is provided, check if that player is a spy
             return player_num in self.spies
         else:
             # If no player number is provided, check if the agent (self) is a spy
             return self.player_number in self.spies
 
-
-    def propose_mission(self, team_size, betrayals_required):  
+    def propose_mission(self, team_size, betrayals_required=1):
         '''
         Returns a list of agents to propose for the mission. 
         If spy, it selects a mix of spies and non-spies to reduce suspicion. 
@@ -72,7 +69,7 @@ class StudentAgent(Agent):
         '''
         if self.is_spy():
             # Spy strategy: Choose a mixed team with some spies and non-spies to reduce suspicion.
-            spy_team = random.sample(self.spies, min(team_size, len(self.spies))) 
+            spy_team = random.sample(self.spies, min(team_size, len(self.spies)))
             non_spies = []
             for i in range(self.num_players):
                 if i not in self.spies:
@@ -80,7 +77,7 @@ class StudentAgent(Agent):
 
             return spy_team + random.sample(non_spies, team_size - len(spy_team))
 
-        # Resistance strategy: Choose players with the lowest spy probability 
+        # Resistance strategy: Choose players with the lowest spy probability
         sorted_players = sorted(self.player_probabilities.items(), key=lambda x: x[1])
         team = []
         for player, probability in sorted_players[:team_size]:
@@ -88,8 +85,7 @@ class StudentAgent(Agent):
 
         return team
 
-
-    def vote(self, mission, proposer, betrayals_required): 
+    def vote(self, mission, proposer, betrayals_required=1):
         '''
         Determines whether the agent votes for or against the mission. 
         If spy, it votes to approve missions it can sabotage, or occasionally approves good missions to reduce suspicion. 
@@ -100,41 +96,32 @@ class StudentAgent(Agent):
             # Spies approve missions they can sabotage but also approve successful missions to avoid suspicion
             spy_count = len(set(mission) & self.spies)
             if spy_count >= betrayals_required:
-                return True  # Spy-heavy mission, ensure failure    
+                return True  # Spy-heavy mission, ensure failure
 
             # Sometimes approve a good mission to reduce suspicion
-            # return random.random() < 0.15
+            return random.random() < 0.3
 
-        # Resistance: calc total spy probability of mission members
+        # Resistance: Calculate total spy probability of mission members
         total_spy_prob = 0
         for player in mission:
             total_spy_prob += self.player_probabilities[player]
 
         mission_spy_prob = total_spy_prob / len(mission)
-        
-        
-        current_round = len(self.mission_history)
-        if current_round <= 2:
-            threshold = 0.3
-        else:
-            threshold = 0.25 if betrayals_required == 1 else 0.2
 
-        # See if proposer is sussy
-        if mission_spy_prob > threshold or self.player_probabilities[proposer] > 0.2: 
+        # See if proposer is suspicious
+        if mission_spy_prob > 0.6 or self.player_probabilities[proposer] > 0.6:
             return False  # Reject mission with high spy likelihood
 
-        return self._simulate_future_vote_outcome(mission, proposer, betrayals_required)  
-
+        return self._simulate_future_vote_outcome(mission, proposer, betrayals_required)
 
     def vote_outcome(self, mission, proposer, votes):
         '''
         Records each player's vote in their voting history.
         '''
         for player, vote in enumerate(votes):
-            self.vote_history[player].append(vote)  
+            self.vote_history[player].append(vote)
 
-
-    def betray(self, mission, proposer, betrayals_required):
+    def betray(self, mission, proposer, betrayals_required=1):
         '''
         mission is a list of agents to be sent on a mission. 
         The agents on the mission are distinct and indexed between 0 and number_of_players, and include this agent.
@@ -145,62 +132,30 @@ class StudentAgent(Agent):
 
         Betrayal decision is based on various factors: if enough spies are present to ensure failure, 
         if the game state (e.g., 2 failed or 2 successful missions) makes a betrayal crucial, 
-        or if the agent prefers to remain hidden by avoiding unnecessary betrayals. 
+        or if the agent prefers to remain hidden by avoiding unnecessary betrayals.
         '''
         if not self.is_spy():
             return False
 
         # Spy betrayal: Only betray when necessary or strategically good
         spy_count = len(set(mission) & self.spies)
-        current_round = len(self.mission_history)
 
-        # GO SICKO MODE IF WE CAN WIN
-        if self.failed_missions == 2 or current_round == 4:
-            if spy_count >= betrayals_required:
-                return True
-
-        # Betray only if necessary or in important rounds
         if spy_count >= betrayals_required:
+            # Ensure mission fails if enough spies are present
             return True
 
-        # try be less sus
-        if current_round < 3:
-            return random.random() < 0.2 
+        # betray when tied (2-2)
+        if self.failed_missions == 2 or self.successful_missions == 2:
+            return True
 
-        return random.random() < 0.5
+        # Spy behavior: betray only if necessary or if staying hidden no longer matters
+        if spy_count > 1 and betrayals_required == 1:
+            return random.random() < 0.5  # Less predictable betrayal behavior
 
-        # # Spy behavior: betray only if necessary or if staying hidden no longer matters   
-        # if spy_count > 1 and betrayals_required == 1:
-        #     return random.random() < 0.5  # Less predictable betrayal behavior
+        # Keep betrayal probability low to avoid detection
+        return random.random() < 0.3
 
-        # # keep betrayal probability low to avoid detection
-        # return random.random() < 0.3
-          
-        
-        # refined/added this bit after the project update
-        # mightve helped make win rate less volatile
-        # if betrayals_required > 1:
-        # # Adjust likelihood of betraying if more betrayals are needed
-        #     return random.random() < (0.6 * (spy_count / betrayals_required))
-        
-        # return random.random() < 0.3 
-        
-        # Betray based on game state: increase betrayal chance in later rounds.
-        # current_round = len(self.mission_history)
-        
-        # if current_round >= 3 and (self.failed_missions == 2 or self.successful_missions == 2):
-        #     # Late-game: critical missions where betrayal is needed
-        #     return True
-
-        # if current_round >= 3:
-        #     # Later rounds: increase betrayal aggression
-        #     return random.random() < 0.5
-
-        # # Early rounds: betray less to avoid detection
-        # return random.random() < 0.3
-
-
-    def mission_outcome(self, mission, proposer, num_betrayals, mission_success): 
+    def mission_outcome(self, mission, proposer, num_betrayals, mission_success):
         '''
         mission is a list of agents to be sent on a mission. 
         The agents on the mission are distinct and indexed between 0 and number_of_players.
@@ -218,11 +173,11 @@ class StudentAgent(Agent):
             'proposer': proposer,
             'num_betrayals': num_betrayals,
             'mission_success': mission_success
-        })     
-        
+        })
+
         # Bayesian updates for spy probabilities based on mission success and betrayals
         for player in mission:
-            self._bayesian_stuff(player, mission_success, num_betrayals)
+            self._bayesian_update(player, mission_success, num_betrayals)
 
         # Track spy-like behavior for heuristics
         if not mission_success:
@@ -232,8 +187,7 @@ class StudentAgent(Agent):
 
         # Adjust probabilities based on vote history after each mission
         for player in range(self.num_players):
-            self._voting_patterns(player)
-
+            self._adjust_for_voting_patterns(player)
 
     def round_outcome(self, rounds_complete, missions_failed):
         '''
@@ -245,7 +199,6 @@ class StudentAgent(Agent):
         self.failed_missions = missions_failed
         pass
 
-
     def game_outcome(self, spies_win, spies):
         '''
         basic informative function, where the parameters indicate:
@@ -256,96 +209,69 @@ class StudentAgent(Agent):
         pass
 
 
-
-    ######################### Helper Methods ################################
+    # Helper Methods #
 
     def _simulate_future_vote_outcome(self, mission, proposer, betrayals_required):
         '''Simulate future rounds to adjust voting decisions based on minimax-inspired logic.'''
         
-        # Get curr round number and remaining rounds in the game
+        # Get current round number and remaining rounds in the game
         current_round = len(self.mission_history)
         remaining_rounds = self.total_rounds - current_round
-    
 
-        # find likelihood of spies in curr mission
-        total_spy_probability = 0
+        # Estimate likelihood that this mission has spies
+        total_spy_prob = 0
         for player in mission:
-            total_spy_probability += self.player_probabilities[player]
-        future_spy_probability = total_spy_probability / len(mission)
+            total_spy_prob += self.player_probabilities[player]
+        future_spy_prob = total_spy_prob / len(mission)
 
-        # see if spy is suspicious
-        proposer_spy_probability = self.player_probabilities[proposer]
+        # Estimate likelihood that the proposer is a spy
+        proposer_spy_prob = self.player_probabilities[proposer]
 
+        if proposer_spy_prob > 0.5:
+            return False  # Reject missions from highly suspicious proposers
 
-        if proposer_spy_probability > 0.5:
-            return False  # reject if sussy
+        if future_spy_prob > 0.5 and remaining_rounds > 1:
+            return False  # Too risky, reject to improve future rounds
 
-        if future_spy_probability > 0.5 and remaining_rounds > 1:
-            return False  # still risky but reject to improve future rounds
-
-        if future_spy_probability > 0.5 and betrayals_required == 1:
-            return False  # reject if high risk
+        if future_spy_prob > 0.5 and betrayals_required == 1:
+            return False  # High-risk missions should be rejected
 
         return True  # Accept if the probabilities are reasonable
 
-
-    def _bayesian_stuff(self, player, mission_success, num_betrayals):
+    def _bayesian_update(self, player, mission_success, num_betrayals):
         '''Update player spy probabilities based on mission outcomes with Bayesian inference.'''
         
-        # If the mission was successful, reduce player's probability of being a spy.
-        
+        # If the mission was successful, reduce the player's probability of being a spy.
+        # The reduction is scaled by the inverse of the number of betrayals (fewer betrayals -> more reduction).
         if mission_success:
-            # decr spy probability: fewer betrayals = more reduction.
-            # e.g.,: If no betrayals, the probability is reduced more significantly.
-            
-            # self.player_probabilities[player] = max(0, self.player_probabilities[player] - 0.1 * (1 - num_betrayals))
-            
-            # lower reduction in early rounds
-            reduction = 0.1 + (0.05 * (self.successful_missions))
-            self.player_probabilities[player] = max(0, self.player_probabilities[player] - reduction) # altered after project update
-            
+            # Decrease spy probability: The fewer betrayals, the larger the reduction.
+            # Example: If no betrayals, the probability is reduced more significantly.
+            self.player_probabilities[player] = max(0, self.player_probabilities[player] - 0.1 * (1 - num_betrayals))
         else:
             # If the mission failed, increase the player's probability of being a spy.
-            # - increase is proportional to the number of betrayals (more betrayals = more suspicion).
-            # - reflects a higher likelihood that players on a failed mission are spies.
-            
-            increase = 0.2 + (0.1 * (self.failed_missions))
-            self.player_probabilities[player] = min(1.0, self.player_probabilities[player] + increase * num_betrayals)
+            # The increase is proportional to the number of betrayals (more betrayals -> more suspicion).
+            # This reflects a higher likelihood that players on a failed mission are spies.
+            self.player_probabilities[player] = min(1.0, self.player_probabilities[player] + 0.15 * num_betrayals)
 
-
-    def _voting_patterns(self, player):
+    def _adjust_for_voting_patterns(self, player):
         '''Adjust spy probabilities based on voting behavior.'''
         
-        # Only adjust the player's spy probability if we have sufficient vote history
-        if len(self.vote_history[player]):
-            
-            # see how many times the player has voted against a mission.
-            sussy_votes = 0
+        # Only adjust the player's spy probability if we have sufficient vote history (more than 5 votes).
+        if len(self.vote_history[player]) > 5:
+            # Count how many times the player has voted against a mission.
+            suspicious_votes = 0
             for vote in self.vote_history[player]:
                 if vote == False:
-                    sussy_votes += 1
+                    suspicious_votes += 1
 
-            # ratio of suspicious (negative) votes to the total number of votes.
-            vote_ratio = sussy_votes / len(self.vote_history[player])
-                        
-            # If more than 50% of the player's votes are sus (against missions),
-            # likely spy behavior (sabotaging missions), so incr their spy probability.
+            # Calculate the ratio of suspicious (negative) votes to the total number of votes.
+            vote_ratio = suspicious_votes / len(self.vote_history[player])
+            
+            # If more than 50% of the player's votes are suspicious (against missions),
+            # this is typical spy behavior (sabotaging missions), so increase their spy probability.
             if vote_ratio > 0.5:
                 self.player_probabilities[player] = min(1.0, self.player_probabilities[player] + 0.2)
-                
             else:
-                # other side: if vote in favour of mission then likely not spy
-                # - shows theyre behaving like a Resistance member.
+                # If the player mostly votes in favor of missions, reduce their probability of being a spy.
+                # This shows they're behaving like a Resistance member.
                 self.player_probabilities[player] = max(0, self.player_probabilities[player] - 0.1)
-
-        
-
-
-
-
-
-
-
-
-
-

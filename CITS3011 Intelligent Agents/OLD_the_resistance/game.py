@@ -172,13 +172,12 @@ class Mission():
         and if the vote is in favour,
         asking spies if they wish to fail the mission
         '''
-        betrayals_required = Agent.betrayals_required[len(self.agents)][self.rnd]
-        self.votes_for = [i for i in range(len(self.agents)) if auto_approve or self.agents[i].vote(self.team, self.leader_id, betrayals_required)]
+        self.votes_for = [i for i in range(len(self.agents)) if auto_approve or self.agents[i].vote(self.team, self.leader_id)]
         for a in self.agents:
             a.vote_outcome(self.team, self.leader_id, self.votes_for)
         if 2*len(self.votes_for) > len(self.agents):
-            self.betrayals = [i for i in self.team if i in self.spies and self.agents[i].betray(self.team, self.leader_id, betrayals_required)]
-            success = len(self.betrayals) < betrayals_required
+            self.betrayals = [i for i in self.team if i in self.spies and self.agents[i].betray(self.team, self.leader_id)]
+            success = len(self.betrayals) < Agent.betrayals_required[len(self.agents)][self.rnd]
             for a in self.agents:
                 a.mission_outcome(self.team,self.leader_id, len(self.betrayals), success)
 
@@ -227,3 +226,10 @@ class Mission():
         raises an exception if the mission is not approved or betrayals not recorded.
         '''
         return self.is_approved() and len(self.betrayals) < Agent.betrayals_required[len(self.agents)][self.rnd]
+                
+
+
+
+
+
+
