@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 2 - CSS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="lab2.css">
+
+</head>
+<body>
+    <h2 style="text-align: center;">2022 Winter Paralympics medal table</h2>
+    <div>
+
+        <table>
+            <tr class="hover">
+                <th class="rank">Rank</th>
+                <th class="country">NPC</th>
+                <th class="gold">Gold</th>
+                <th class="silver">Silver</th>
+                <th class="bronze">Bronze</th>
+                <th class="total">Total</th>
+            </tr>
+            <tr>
+                <td class="rank">1</td>
+                <td class="country">🇨🇳 China</td>
+                <td class="gold">18</td>
+                <td class="silver">20</td>
+                <td class="bronze">23</td>
+                <td class="total">61</td>
+            </tr>
+            <tr>
+                <td class="rank">2</td>
+                <td class="country">🇺🇦 Ukraine</td>
+                <td class="gold">11</td>
+                <td class="silver">10</td>
+                <td class="bronze">8</td>
+                <td class="total">29</td>
+            </tr>
+            <tr>
+                <td class="rank">3</td>
+                <td class="country">🇨🇦 Canada</td>
+                <td class="gold">8</td>
+                <td class="silver">6</td>
+                <td class="bronze">11</td>
+                <td class="total">25</td>
+            </tr>
+            <tr>
+                <td class="rank">4</td>
+                <td class="country">🇫🇷 France</td>
+                <td class="gold">7</td>
+                <td class="silver">3</td>
+                <td class="bronze">2</td>
+                <td class="total">12</td>
+            </tr>
+            <tr>
+                <td class="rank">5</td>
+                <td class="country">🇺🇸 United States</td>
+                <td class="gold">6</td>
+                <td class="silver">11</td>
+                <td class="bronze">3</td>
+                <td class="total">20</td>
+            </tr>
+
+        </table>
+    </div>
+
+    <br>
+
+    <div style="text-align: center;">
+        <h2>Video</h2>
+        <video controls height="300" width="350">
+            <source src="NorskTippingKebab.mp4" type="video/mp4">
+            <source src="NorskTippingKebab.webm" type="video/webm">
+
+            <p>
+                Your browser doesn't support HTML video. Here is a
+        <a href="NorskTippingKebab.mp4">link to the video</a> instead.
+            </p>
+        </video>
+    </div>
+
+    <div style="text-align: center;">
+        <h2>Audio</h2>
+        <audio controls>
+            <source src="nineoneone.mp3" type="audio/mp3">
+            <source src="nineoneone.wav" type="audio/wav">
+            <p>
+                Your browser doesn't support this audio file. Here is a
+                <a href="nineoneone.mp3">link to the audio</a> instead.
+              </p>
+        </audio>
+    </div>
+    <br>
+
+    <div style="text-align: center; display: block;">
+        <h2>Example using inline block</h2>
+        <video controls width="250px" height = 200px>
+            <source src="NorskTippingKebab.mp4" type="video/mp4">
+            <source src="NorskTippingKebab.webm" type="video/webm">
+
+            <p>
+                Your browser doesn't support HTML video. Here is a
+        <a href="NorskTippingKebab.mp4">link to the video</a> instead.
+            </p>
+        </video>
+
+        <audio controls>
+            <source src="nineoneone.mp3" type="audio/mp3">
+            <source src="nineoneone.wav" type="audio/wav">
+            <p>
+                Your browser doesn't support this audio file. Here is a
+                <a href="nineoneone.mp3">link to the audio</a> instead.
+              </p>
+        </audio>
+    </div>
+
+
+
+
+</body>
+</html>
+
+
+<!-- 
+            <tr>
+                <td class="rank">6</td>
+                <td class="country">Austria</td>
+                <td class="gold">5</td>
+                <td class="silver">5</td>
+                <td class="bronze">3</td>
+                <td>13</td>
+            </tr>
+            <tr>
+                <td class="rank">7</td>
+                <td class="country">Germany</td>
+                <td class="gold">4</td>
+                <td class="silver">8</td>
+                <td class="bronze">7</td>
+                <td>19</td>
+            </tr>
+            <tr>
+                <td class="rank">8</td>
+                <td class="country">Norway</td>
+                <td class="gold">4</td>
+                <td class="silver">2</td>
+                <td class="bronze">1</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td class="rank">9</td>
+                <td class="country">Japan</td>
+                <td class="gold">4</td>
+                <td class="silver">1</td>
+                <td class="bronze">2</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td class="rank">10</td>
+                <td class="country">Slovakia</td>
+                <td class="gold">3</td>
+                <td class="silver">0</td>
+                <td class="bronze">3</td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td class="rank">11</td>
+                <td class="country">Italy</td>
+                <td class="gold">2</td>
+                <td class="silver">3</td>
+                <td class="bronze">2</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td class="rank">12</td>
+                <td class="country">Sweden</td>
+                <td class="gold">2</td>
+                <td class="silver">2</td>
+                <td class="bronze">3</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td class="rank">13</td>
+                <td class="country">Finland</td>
+                <td class="gold">2</td>
+                <td class="silver">2</td>
+                <td class="bronze">0</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td class="rank">14</td>
+                <td class="country">Great Britain</td>
+                <td class="gold">1</td>
+                <td class="silver">1</td>
+                <td class="bronze">4</td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td class="rank">15</td>
+                <td class="country">New Zealand</td>
+                <td class="gold">1</td>
+                <td class="silver">1</td>
+                <td class="bronze">2</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td class="rank">16</td>
+                <td class="country">Netherlands</td>
+                <td class="gold">0</td>
+                <td class="silver">3</td>
+                <td class="bronze">1</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td class="rank">17</td>
+                <td class="country">Australia</td>
+                <td class="gold">0</td>
+                <td class="silver">0</td>
+                <td class="bronze">1</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td class="rank">17</td>
+                <td class="country">Kazakhstan</td>
+                <td class="gold">0</td>
+                <td class="silver">0</td>
+                <td class="bronze">1</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td class="rank">17</td>
+                <td class="country">Switzerland</td>
+                <td class="gold">0</td>
+                <td class="silver">0</td>
+                <td class="bronze">1</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <th colspan="2">Totals (19 entries)</th>
+                <th>78</th>
+                <th>78</th>
+                <th>78</th>
+                <th>234</th>
+            </tr>
+-->
